@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  frontend:
+    image: nginx:latest
+    networks:
+      - frontend_network
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  backend:
+    image: node:14
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    working_dir: /app
+    networks:
+      - frontend_network
+      - backend_network
+    depends_on:
+      - database
+    command: sh -c "npm install && node server.js"
+
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: example
+    networks:
+      - backend_network
+
+networks:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
